@@ -1,0 +1,23 @@
+{
+  "name": "grunt-rename-assets",
+  "version": "0.0.0",
+  "description": "Rename asset files with their MD5/SHA1 hashes.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/caiguanhao/grunt-rename-assets.git"
+  },
+  "keywords": [
+    "rename",
+    "assets",
+    "files",
+    "gruntplugin",
+    "grunt-plugin",
+    "grunt"
+  ],
+  "author": "Cai Guanhao (Choi Goon-ho)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/caiguanhao/grunt-rename-assets/issues"
+  },
+  "homepage": "https://github.com/caiguanhao/grunt-rename-assets"
+}
