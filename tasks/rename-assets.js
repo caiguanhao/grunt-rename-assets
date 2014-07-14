@@ -16,16 +16,18 @@ function isString(what) {
   return Object.prototype.toString.call(what) === '[object String]';
 }
 
+function isObject(what) {
+  return Object.prototype.toString.call(what) === '[object Object]';
+}
+
 module.exports = function(grunt) {
 
-  var DEF_INJECT_K = [ 'process', 'require', 'console', 'grunt' ];
-  var DEF_INJECT_V = [  process ,  require ,  console ,  grunt  ];
-
   function parse(text, bundle) {
-    var args = '"' + DEF_INJECT_K.concat(bundle.keys).join('", "') + '"';
+    var keys = Object.keys(bundle);
+    var args = '"' + keys.join('", "') + '"';
     var exp  = JSON.stringify('return ' + text + ';');
     var func = new Function('return new Function(' + args + ', ' + exp + ');')();
-    return func.apply(undefined, DEF_INJECT_V.concat(bundle.values));
+    return func.apply(undefined, keys.map(function(key) { return bundle[key]; }));
   }
 
   // from AngularJS
@@ -61,6 +63,7 @@ module.exports = function(grunt) {
     var endSymbol    = options.endSymbol;
     var skipIfHashed = options.skipIfHashed === false ? false : true;
     var callback     = options.callback;
+    var inject       = options.inject;
     var befores      = [];
     var afters       = [];
 
@@ -69,6 +72,7 @@ module.exports = function(grunt) {
     if (!isString(startSymbol) || !startSymbol) startSymbol = DEF_SYM_S;
     if (!isString(endSymbol)   || !endSymbol)   endSymbol   = DEF_SYM_E;
     if (!isFunction(callback))                  callback    = DEF_NOOP;
+    if (!isObject(inject))                      inject      = {};
 
     for (var i = 0; i < files.length; i++) {
       for (var j = 0; j < files[i].src.length; j++) {
@@ -87,9 +91,20 @@ module.exports = function(grunt) {
         if (skipIfHashed && filename.indexOf(hash) > -1) continue;
 
         var bundle = {
-          keys:   [ 'hash', 'basename', 'ext', 'realpath' ],
-          values: [  hash ,  basename ,  ext ,  realpath  ]
+          ext:      ext,
+          hash:     hash,
+          basename: basename,
+          realpath: realpath,
+
+          process:  process,
+          require:  require,
+          console:  console,
+          grunt:    grunt
         };
+
+        for (var inj in inject) {
+          bundle[inj] = inject[inj];
+        }
 
         var newFileName;
         try {

@@ -48,6 +48,12 @@ Format for the new file name. You can use these variables:
 * global: process, require, console, grunt
 * file:   hash, basename, ext, realpath
 
+### inject
+
+Type: `Object`    Default: `{}`
+
+Add more variables to use in `format`. Keys are the variable names.
+
 ### startSymbol
 
 Type: `String`    Default: `{{`
@@ -75,7 +81,12 @@ grunt.initConfig({
         startSymbol: '{{',
         endSymbol: '}}',
         algorithm: 'sha1',
-        format: '{{basename}}-{{hash}}-{{require("fs").statSync(realpath).size}}.{{ext}}',
+        format: '{{timestamp()}}-{{basename}}-{{hash}}-{{require("fs").statSync(realpath).size}}.{{ext}}',
+        inject: {
+          timestamp: function() {
+            return +new Date;
+          }
+        },
         callback: function(befores, afters) {
           var publicdir = require('fs').realpathSync('public');
           var path = require('path');
