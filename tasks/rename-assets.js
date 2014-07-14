@@ -20,34 +20,34 @@ function isObject(what) {
   return Object.prototype.toString.call(what) === '[object Object]';
 }
 
-module.exports = function(grunt) {
+function parse(text, bundle) {
+  var keys = Object.keys(bundle);
+  var args = '"' + keys.join('", "') + '"';
+  var exp  = JSON.stringify('return ' + text + ';');
+  var func = new Function('return new Function(' + args + ', ' + exp + ');')();
+  return func.apply(undefined, keys.map(function(key) { return bundle[key]; }));
+}
 
-  function parse(text, bundle) {
-    var keys = Object.keys(bundle);
-    var args = '"' + keys.join('", "') + '"';
-    var exp  = JSON.stringify('return ' + text + ';');
-    var func = new Function('return new Function(' + args + ', ' + exp + ');')();
-    return func.apply(undefined, keys.map(function(key) { return bundle[key]; }));
-  }
-
-  // from AngularJS
-  function interpolate(startSymbol, endSymbol, text, bundle) {
-    var startSymbolLength = startSymbol.length, endSymbolLength = endSymbol.length;
-    var index = 0, parts = [], length = text.length;
-    while(index < length) {
-      if ( ((startIndex = text.indexOf(startSymbol, index)) != -1) &&
-           ((endIndex = text.indexOf(endSymbol, startIndex + startSymbolLength)) != -1) ) {
-        (index != startIndex) && parts.push(text.substring(index, startIndex));
-        parts.push(parse(text.substring(startIndex + startSymbolLength, endIndex), bundle));
-        index = endIndex + endSymbolLength;
-      } else {
-        (index != length) && parts.push(text.substring(index));
-        index = length;
-      }
+// from AngularJS
+function interpolate(startSymbol, endSymbol, text, bundle) {
+  var startSymbolLength = startSymbol.length, endSymbolLength = endSymbol.length;
+  var index = 0, parts = [], length = text.length;
+  while(index < length) {
+    if ( ((startIndex = text.indexOf(startSymbol, index)) != -1) &&
+         ((endIndex = text.indexOf(endSymbol, startIndex + startSymbolLength)) != -1) ) {
+      (index != startIndex) && parts.push(text.substring(index, startIndex));
+      parts.push(parse(text.substring(startIndex + startSymbolLength, endIndex), bundle));
+      index = endIndex + endSymbolLength;
+    } else {
+      (index != length) && parts.push(text.substring(index));
+      index = length;
     }
-    var ret = parts.join('').replace(/[\r\n\t]+/g, '');
-    return ret;
   }
+  var ret = parts.join('').replace(/[\r\n\t]+/g, '');
+  return ret;
+}
+
+module.exports = function(grunt) {
 
   grunt.registerMultiTask(
     'rename',
