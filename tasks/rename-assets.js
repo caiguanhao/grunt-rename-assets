@@ -6,6 +6,11 @@ var DEF_ALG   = 'sha1';
 var DEF_FMT   = '{{basename}}-{{hash}}.{{ext}}';
 var DEF_SYM_S = '{{';
 var DEF_SYM_E = '}}';
+var DEF_NOOP  = function() {};
+
+function isFunction(what) {
+  return Object.prototype.toString.call(what) === '[object Function]';
+}
 
 function isString(what) {
   return Object.prototype.toString.call(what) === '[object String]';
@@ -55,12 +60,15 @@ module.exports = function(grunt) {
     var startSymbol  = options.startSymbol;
     var endSymbol    = options.endSymbol;
     var skipIfHashed = options.skipIfHashed === false ? false : true;
-    var done         = 0;
+    var callback     = options.callback;
+    var befores      = [];
+    var afters       = [];
 
     if (!isString(algorithm)   || !algorithm)   algorithm   = DEF_ALG;
     if (!isString(format)      || !format)      format      = DEF_FMT;
     if (!isString(startSymbol) || !startSymbol) startSymbol = DEF_SYM_S;
     if (!isString(endSymbol)   || !endSymbol)   endSymbol   = DEF_SYM_E;
+    if (!isFunction(callback))                  callback    = DEF_NOOP;
 
     for (var i = 0; i < files.length; i++) {
       for (var j = 0; j < files[i].src.length; j++) {
@@ -93,18 +101,23 @@ module.exports = function(grunt) {
 
         if (filename === newFileName) continue;
         try {
-          fs.renameSync(path.join(dirname, filename), path.join(dirname, newFileName));
+          var oldpath = path.join(dirname, filename);
+          var newpath = path.join(dirname, newFileName);
+          fs.renameSync(oldpath, newpath);
+          befores.push(oldpath);
+          afters.push(newpath);
         } catch(e) {
           console.error(('Error renaming file from ' + filename + ' to ' + newFileName).red);
           grunt.fail.fatal(e.stack);
         }
 
         grunt.log.ok(filename.cyan + ' → ' + newFileName.cyan);
-        done++;
       }
     }
 
-    if (done === 0) {
+    callback.call(this, befores, afters);
+
+    if (afters.length === 0) {
       grunt.log.ok('No asset files to rename.');
     }
 
