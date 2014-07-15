@@ -3,7 +3,7 @@ var path   = require('path');
 var crypto = require('crypto');
 
 var DEF_ALG   = 'sha1';
-var DEF_FMT   = '{{basename}}-{{hash}}.{{ext}}';
+var DEF_FMT   = '{{basename}}-{{hash}}{{ext&&("."+ext)}}';
 var DEF_SYM_S = '{{';
 var DEF_SYM_E = '}}';
 var DEF_NOOP  = function() {};

@@ -41,7 +41,7 @@ See [possible algorithms](http://nodejs.org/api/crypto.html#crypto_crypto_create
 
 ### format
 
-Type: `String`    Default: `{{basename}}-{{hash}}.{{ext}}`
+Type: `String`    Default: `{{basename}}-{{hash}}{{ext&&("."+ext)}}`
 
 Format for the new file name. You can use these variables:
 
