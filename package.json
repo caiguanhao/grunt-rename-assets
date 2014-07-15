@@ -1,6 +1,6 @@
 {
   "name": "grunt-rename-assets",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Rename asset files with their MD5/SHA1 hashes.",
   "repository": {
     "type": "git",
